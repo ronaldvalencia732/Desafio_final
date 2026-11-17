@@ -6,6 +6,7 @@
 #include <QGraphicsView>
 #include <QKeyEvent>
 #include "jugador.h"
+#include "balon.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -19,7 +20,6 @@ public:
     ~MainWindow();
 
 protected:
-    // Captura de teclas para controlar al jugador
     void keyPressEvent(QKeyEvent *event) override;
 
 private:
@@ -27,6 +27,12 @@ private:
     QGraphicsScene *scene;
     QGraphicsView *view;
     jugador *jugadorPrincipal;
+    balon *pelota;
+
+    float ultimaDirX;
+    float ultimaDirY;
+
+    void verificarContactoBalon();
 };
 
 #endif // MAINWINDOW_H
