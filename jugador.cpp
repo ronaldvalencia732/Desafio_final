@@ -1,5 +1,8 @@
 #include "jugador.h"
 #include <QPixmap>
+#include <QImage>
+#include <QColor>
+#include <cmath>
 
 jugador::jugador(QString nombreJugador, QGraphicsItem *parent)
     : QGraphicsPixmapItem(parent), nombre(nombreJugador) {
@@ -25,7 +28,23 @@ void jugador::recortarSprite(int row, int col) {
     int frameHeight = spriteSheet.height() / 5;
 
     QPixmap cropped = spriteSheet.copy(col * frameWidth, row * frameHeight, frameWidth, frameHeight);
-    setPixmap(cropped.scaled(55, 55, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+
+    // Eliminar los cuadros grises/blancos del fondo JPEG para dar transparencia real
+    QImage img = cropped.toImage().convertToFormat(QImage::Format_ARGB32);
+    for (int y = 0; y < img.height(); ++y) {
+        for (int x = 0; x < img.width(); ++x) {
+            QColor color = img.pixelColor(x, y);
+            // Si el píxel es gris claro o blanco (patrón de cuadrícula de fondo)
+            if (color.red() > 190 && color.green() > 190 && color.blue() > 190 &&
+                std::abs(color.red() - color.green()) < 15 &&
+                std::abs(color.green() - color.blue()) < 15) {
+                img.setPixelColor(x, y, Qt::transparent);
+            }
+        }
+    }
+
+    QPixmap transparente = QPixmap::fromImage(img);
+    setPixmap(transparente.scaled(55, 55, Qt::KeepAspectRatio, Qt::SmoothTransformation));
 }
 
 void jugador::mover(float dx, float dy) {
